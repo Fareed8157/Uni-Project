@@ -15,12 +15,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -115,7 +118,7 @@ public class posController implements Initializable{
     Integer subSum=null;
     JFXTextField am;
     
-    
+    String userName="";
     Integer grandSum=null;
     Integer taxSum=null;
     Integer  n =null;
@@ -145,9 +148,19 @@ public class posController implements Initializable{
     }
 
     @FXML
-    void onAction(ActionEvent event) {
+    void onAction(ActionEvent event) throws SQLException {
         if(event.getSource()==printInvoice){
             if(saveInvoiceDetails()){
+                String qu="";
+                HashMap<String,Object> hm=new HashMap<>();
+            int in=(int)invNo.get();
+            String un=userName;
+            System.out.println("invoiceID="+in);
+            System.out.println("UserName="+un);
+            hm.put("invoiceId",in);
+            hm.put("cashier",un);
+             PrintReport pr=new PrintReport(qu,hm);
+            pr.showReport();
                 infoMessage("Printed");
             }
             
@@ -185,6 +198,64 @@ public class posController implements Initializable{
                 errorMessage("Enter Products into Cart");
             }
         }else if(event.getSource()==reprintInvoice){
+//            int t1=2;
+//                String qu="select i.invoiceDateTime,(select sum(pro.Quantity) from productinvoice pro inner join invoice i on(i.InvoiceID=pro.InvoiceID)" +
+//                "where i.InvoiceID="+t1+") as totalItems ,i.InvoiceID,p.BarCode,p.ProductName ,p.unitPrice,pro.Quantity,sum(pro.Quantity*p.unitPrice) subtotal, " +
+//                " (select distinct sum(p.unitPrice) from invoice i inner join productinvoice pro on(i.InvoiceID=pro.InvoiceID)" +
+//                "inner join products p on(pro.BarCode=p.BarCode)" +
+//                "where i.InvoiceID=5) as grandTotal " +
+//                " from user u inner join invoice i on(u.uId=i.uId)" +
+//                "inner join productinvoice pro on(pro.InvoiceID=i.InvoiceID) inner join products p on(pro.BarCode=p.BarCode)" +
+//                "group by i.InvoiceID,p.ProductName " +
+//                "having InvoiceID="+t1+";";
+            int t=2,t2=5;
+        //String qu="select i.invoiceDateTime dateTime,(select sum(pro.Quantity) from productinvoice pro inner join invoice i on(i.InvoiceID=pro.InvoiceID) where i.InvoiceID="+t+") as totalItem,i.InvoiceID Id,p.BarCode barCode ,p.ProductName Pname,p.unitPrice Uprice ,pro.Quantity QT,sum(pro.Quantity*p.unitPrice) subtotal,(select distinct sum(p.unitPrice) from invoice i inner join productinvoice pro on(i.InvoiceID=pro.InvoiceID) inner join products p on(pro.BarCode=p.BarCode) where i.InvoiceID="+t2+") as grandTotal from user u inner join invoice i on(u.uId=i.uId) inner join productinvoice pro on(pro.InvoiceID=i.InvoiceID) inner join products p on(pro.BarCode=p.BarCode) group by i.InvoiceID,p.ProductName having InvoiceID="+t+";";
+//String qu="select u.uId, u.uName,sum(pro.Quantity*p.unitPrice) total from user u inner join invoice i on(u.uId=i.uId) inner join productinvoice pro on(pro.InvoiceID=i.InvoiceID) inner join products p on(pro.BarCode=p.BarCode) where u.uId="+t;
+ // String qu="select uId,uName,addr,phone,cnic from user";
+            
+//          String qu="select date(i.invoiceDateTime) dateOf,u.uId, u.uName,p.BarCode,p.ProductName,p.PDescription ,i.InvoiceID,p.unitPrice,pro.Quantity,sum(pro.Quantity*p.unitPrice)  from user u inner join invoice i on(u.uId=i.uId) " +
+//"inner join productinvoice pro on(pro.InvoiceID=i.InvoiceID) inner join products p on(pro.BarCode=p.BarCode)" +
+//"group by u.uId,p.BarCode having dateOf="+tsdf.format(today);  
+//String qu="select uId,uName,addr,phone,cnic from user";
+      
+String qu="select i.invoiceDateTime dateOf,(select sum(pro.Quantity) from productinvoice pro inner join invoice i on(i.InvoiceID=pro.InvoiceID) where i.InvoiceID="+t+") as sum,i.InvoiceID Id,p.BarCode barCode ,p.ProductName Pname,p.unitPrice Uprice ,pro.Quantity QT,sum(pro.Quantity*p.unitPrice) subtotal,(select distinct sum(p.unitPrice) from invoice i inner join productinvoice pro on(i.InvoiceID=pro.InvoiceID) inner join products p on(pro.BarCode=p.BarCode) where i.InvoiceID="+t+") as grandTotal from user u inner join invoice i on(u.uId=i.uId) inner join productinvoice pro on(pro.InvoiceID=i.InvoiceID) inner join products p on(pro.BarCode=p.BarCode) group by i.InvoiceID,p.ProductName having InvoiceID="+t;
+//            PreparedStatement ps=con.execQueryPrep(qu);
+//            ps.setInt(1,2);
+//            ps.setInt(2,2);
+//            ps.setInt(3,2);
+            String mydate="2017/09/15";
+            Date today = new Date(mydate);
+            SimpleDateFormat tsdf = new SimpleDateFormat("yyyy-MM-dd");
+            try{
+                System.out.println(tsdf.format(today));
+            }
+            catch (Exception e){
+                System.out.println("Error occurred" + e.getMessage());
+            }
+            HashMap<String,Object> hm=new HashMap<>();
+            Long in=invNo.get();
+            String un=userName;
+            System.out.println("invoiceID="+in);
+            System.out.println("UserName="+un);
+            hm.put("invoiceId",in);
+            hm.put("cashier",un);
+             
+            
+            
+            System.out.println("invoiceID="+invNo.get());
+            System.out.println("UserName="+userName);
+//            hm.put("invoiceId",invNo.get());
+//            hm.put("cashier",userName);
+//            HashMap<String,Object> hm=new HashMap<>();
+//            hm.put("fareed", 5);
+//            hm.put("cashier", "Fareed");
+            
+            //hm.put("invoiceId",5);
+            //hm.put("orderDate", tsdf.format(today));      
+            PrintReport pr=new PrintReport(qu,hm);
+            pr.showReport();
+                handlePdf();
+                
             Label amount=new Label("Amount");
             amount.setStyle("-fx-font-size: 1em; ");
             am=new JFXTextField();
@@ -200,17 +271,36 @@ public class posController implements Initializable{
             //printIn.setStyle("-fx-font-size: 1em; ");
             printIn.setPrefWidth(150);
             printIn.setPrefHeight(40);
+//            String qu="select u.uId, u.uName,sum(pro.Quantity*p.unitPrice) total from user u inner join invoice i on(u.uId=i.uId)" +
+//"inner join productinvoice pro on(pro.InvoiceID=i.InvoiceID) inner join products p on(pro.BarCode=p.BarCode) group by u.uId;";
+//            String qu="select i.invoiceDateTime,(select sum(pro.Quantity) from productinvoice pro inner join invoice i on(i.InvoiceID=pro.InvoiceID)" +
+//"where i.InvoiceID=2) as totalItems ,i.InvoiceID,p.BarCode,p.ProductName ,p.unitPrice,pro.Quantity,sum(pro.Quantity*p.unitPrice) subtotal, " +
+//" (select distinct sum(p.unitPrice) from invoice i inner join productinvoice pro on(i.InvoiceID=pro.InvoiceID)" +
+//"inner join products p on(pro.BarCode=p.BarCode)" +
+//"where i.InvoiceID=5) as grandTotal" +
+//" from user u inner join invoice i on(u.uId=i.uId)" +
+//"inner join productinvoice pro on(pro.InvoiceID=i.InvoiceID) inner join products p on(pro.BarCode=p.BarCode)" +
+//"group by i.InvoiceID,p.ProductName" +
+//"having InvoiceID=2;";
             //printIn.getGraphic().setStyle("-fx-background-color: #B3E5FC;");
             GridPane.setConstraints(printIn, 1, 2);
             printIn.setOnAction(e->{
+                
+                
+                
+               
                 System.out.println("Printed");
             });
+            
+            
+             
             grid.getChildren().addAll(amount,am,printIn);
-            Scene sc=new Scene(grid,400,300);
+              Scene sc=new Scene(grid,400,300);
+            
             
             Stage win=new Stage();
             win.setScene(sc);
-            win.showAndWait();
+            //win.showAndWait();
             
             
         }
@@ -345,6 +435,8 @@ public class posController implements Initializable{
             //ar=(sCurrentLine = br.readLine()).split("/");
             String[] ar=(sCurrentLine = br.readLine()).split("/");
             val=Integer.valueOf(ar[0]);
+            userName=ar[1];
+            System.out.println(ar[1]);
             System.out.println("My nO"+val);
             return val;
            
@@ -422,6 +514,11 @@ public class posController implements Initializable{
             System.out.println(ex.toString());
              return lastId;
         }
+    }
+
+    private void handlePdf() {
+       
+        
     }
 
     
